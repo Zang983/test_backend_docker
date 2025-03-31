@@ -43,6 +43,31 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?float $balance = null;
 
+    /**
+     * @var Collection<int, transaction>
+     */
+    #[ORM\OneToMany(targetEntity: transaction::class, mappedBy: 'userOwner', orphanRemoval: true)]
+    private Collection $transactions;
+
+    /**
+     * @var Collection<int, pots>
+     */
+    #[ORM\OneToMany(targetEntity: pots::class, mappedBy: 'ownerUser', orphanRemoval: true)]
+    private Collection $pots;
+
+    /**
+     * @var Collection<int, subscription>
+     */
+    #[ORM\OneToMany(targetEntity: subscription::class, mappedBy: 'ownerUser', orphanRemoval: true)]
+    private Collection $subscriptions;
+
+    public function __construct()
+    {
+        $this->transactions = new ArrayCollection();
+        $this->pots = new ArrayCollection();
+        $this->subscriptions = new ArrayCollection();
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -150,6 +175,96 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setBalance(float $balance): static
     {
         $this->balance = $balance;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, transaction>
+     */
+    public function getTransactions(): Collection
+    {
+        return $this->transactions;
+    }
+
+    public function addTransaction(transaction $transaction): static
+    {
+        if (!$this->transactions->contains($transaction)) {
+            $this->transactions->add($transaction);
+            $transaction->setUserOwner($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTransaction(transaction $transaction): static
+    {
+        if ($this->transactions->removeElement($transaction)) {
+            // set the owning side to null (unless already changed)
+            if ($transaction->getUserOwner() === $this) {
+                $transaction->setUserOwner(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, pots>
+     */
+    public function getPots(): Collection
+    {
+        return $this->pots;
+    }
+
+    public function addPot(pots $pot): static
+    {
+        if (!$this->pots->contains($pot)) {
+            $this->pots->add($pot);
+            $pot->setOwnerUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removePot(pots $pot): static
+    {
+        if ($this->pots->removeElement($pot)) {
+            // set the owning side to null (unless already changed)
+            if ($pot->getOwnerUser() === $this) {
+                $pot->setOwnerUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, subscription>
+     */
+    public function getSubscriptions(): Collection
+    {
+        return $this->subscriptions;
+    }
+
+    public function addSubscription(subscription $subscription): static
+    {
+        if (!$this->subscriptions->contains($subscription)) {
+            $this->subscriptions->add($subscription);
+            $subscription->setOwnerUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSubscription(subscription $subscription): static
+    {
+        if ($this->subscriptions->removeElement($subscription)) {
+            // set the owning side to null (unless already changed)
+            if ($subscription->getOwnerUser() === $this) {
+                $subscription->setOwnerUser(null);
+            }
+        }
 
         return $this;
     }

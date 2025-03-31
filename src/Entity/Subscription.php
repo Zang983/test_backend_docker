@@ -26,6 +26,10 @@ class Subscription
     #[ORM\Column]
     private ?float $amount = null;
 
+    #[ORM\ManyToOne(inversedBy: 'subscriptions')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $ownerUser = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -75,6 +79,18 @@ class Subscription
     public function setAmount(float $amount): static
     {
         $this->amount = $amount;
+
+        return $this;
+    }
+
+    public function getOwnerUser(): ?User
+    {
+        return $this->ownerUser;
+    }
+
+    public function setOwnerUser(?User $ownerUser): static
+    {
+        $this->ownerUser = $ownerUser;
 
         return $this;
     }

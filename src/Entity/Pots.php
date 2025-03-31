@@ -26,6 +26,10 @@ class Pots
     #[ORM\JoinColumn(nullable: false)]
     private ?User $Owner = null;
 
+    #[ORM\ManyToOne(inversedBy: 'pots')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $ownerUser = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -75,6 +79,18 @@ class Pots
     public function setOwner(?User $Owner): static
     {
         $this->Owner = $Owner;
+
+        return $this;
+    }
+
+    public function getOwnerUser(): ?User
+    {
+        return $this->ownerUser;
+    }
+
+    public function setOwnerUser(?User $ownerUser): static
+    {
+        $this->ownerUser = $ownerUser;
 
         return $this;
     }

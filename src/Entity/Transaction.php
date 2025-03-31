@@ -22,6 +22,14 @@ class Transaction
     #[ORM\Column]
     private ?float $amount = null;
 
+    #[ORM\ManyToOne(inversedBy: 'transactions')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $userOwner = null;
+
+    #[ORM\ManyToOne(inversedBy: 'transactions')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?party $parties = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -59,6 +67,30 @@ class Transaction
     public function setAmount(float $amount): static
     {
         $this->amount = $amount;
+
+        return $this;
+    }
+
+    public function getUserOwner(): ?User
+    {
+        return $this->userOwner;
+    }
+
+    public function setUserOwner(?User $userOwner): static
+    {
+        $this->userOwner = $userOwner;
+
+        return $this;
+    }
+
+    public function getParties(): ?party
+    {
+        return $this->parties;
+    }
+
+    public function setParties(?party $parties): static
+    {
+        $this->parties = $parties;
 
         return $this;
     }
