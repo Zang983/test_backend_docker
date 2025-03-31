@@ -36,7 +36,7 @@ final class PotsFactory extends PersistentProxyObjectFactory
             'color' => self::faker()->colorName(),
             'name' => self::faker()->userName(),
             'ownerUser' => UserFactory::new(),
-            'target' => self::faker()->randomFloat(),
+            'target' => self::faker()->randomFloat(2,0,100000),
         ];
     }
 
