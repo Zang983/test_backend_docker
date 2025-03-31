@@ -44,21 +44,21 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?float $balance = null;
 
     /**
-     * @var Collection<int, transaction>
+     * @var Collection<int, Transaction>
      */
-    #[ORM\OneToMany(targetEntity: transaction::class, mappedBy: 'userOwner', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Transaction::class, mappedBy: 'userOwner', orphanRemoval: true)]
     private Collection $transactions;
 
     /**
-     * @var Collection<int, pots>
+     * @var Collection<int, Pots>
      */
-    #[ORM\OneToMany(targetEntity: pots::class, mappedBy: 'ownerUser', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Pots::class, mappedBy: 'ownerUser', orphanRemoval: true)]
     private Collection $pots;
 
     /**
-     * @var Collection<int, subscription>
+     * @var Collection<int, Subscription>
      */
-    #[ORM\OneToMany(targetEntity: subscription::class, mappedBy: 'ownerUser', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Subscription::class, mappedBy: 'ownerUser', orphanRemoval: true)]
     private Collection $subscriptions;
 
     /**
@@ -187,14 +187,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
-     * @return Collection<int, transaction>
+     * @return Collection<int, Transaction>
      */
     public function getTransactions(): Collection
     {
         return $this->transactions;
     }
 
-    public function addTransaction(transaction $transaction): static
+    public function addTransaction(Transaction $transaction): static
     {
         if (!$this->transactions->contains($transaction)) {
             $this->transactions->add($transaction);
@@ -204,7 +204,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function removeTransaction(transaction $transaction): static
+    public function removeTransaction(Transaction $transaction): static
     {
         if ($this->transactions->removeElement($transaction)) {
             // set the owning side to null (unless already changed)

@@ -28,7 +28,7 @@ class Transaction
 
     #[ORM\ManyToOne(inversedBy: 'transactions')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?party $parties = null;
+    private ?Party $parties = null;
 
     public function getId(): ?int
     {
@@ -83,12 +83,12 @@ class Transaction
         return $this;
     }
 
-    public function getParties(): ?party
+    public function getParties(): ?Party
     {
         return $this->parties;
     }
 
-    public function setParties(?party $parties): static
+    public function setParties(?Party $parties): static
     {
         $this->parties = $parties;
 
