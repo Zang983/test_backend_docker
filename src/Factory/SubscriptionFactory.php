@@ -32,10 +32,10 @@ final class SubscriptionFactory extends PersistentProxyObjectFactory
     protected function defaults(): array|callable
     {
         return [
-            'amount' => self::faker()->randomFloat(),
-            'dayOfMonth' => self::faker()->numberBetween(1, 32767),
-            'frequency' => self::faker()->text(255),
-            'name' => self::faker()->text(255),
+            'amount' => self::faker()->randomFloat(2,0,3000),
+            'dayOfMonth' => self::faker()->numberBetween(1, 31),
+            'frequency' => self::faker()->randomElement(['Monthly', 'Yearly','Weekly','Bi-Weekly','Bi-Monthly','Quarterly']),
+            'name' => self::faker()->randomElement(['Netflix', 'Spotify', 'Hulu', 'Amazon Prime', 'Disney+', 'Apple Music', 'YouTube Premium', 'HBO Max']),
             'ownerUser' => UserFactory::new(),
         ];
     }

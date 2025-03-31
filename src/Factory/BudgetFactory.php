@@ -32,9 +32,9 @@ final class BudgetFactory extends PersistentProxyObjectFactory
     protected function defaults(): array|callable
     {
         return [
-            'category' => self::faker()->text(255),
-            'color' => self::faker()->text(20),
-            'maxSpend' => self::faker()->randomFloat(),
+            'category' => self::faker()->randomElement(['Entertainment', 'Bills', 'Groceries', 'Dining Out', 'Transportation', 'Personal Care', 'Education', 'Lifestyle', 'Shopping', 'General']),
+            'color' => self::faker()->colorName(),
+            'maxSpend' => self::faker()->randomFloat(2, 0, 10000),
             'ownerUser' => null, // TODO add App\Entity\user type manually
         ];
     }
@@ -44,8 +44,7 @@ final class BudgetFactory extends PersistentProxyObjectFactory
      */
     protected function initialize(): static
     {
-        return $this
-            // ->afterInstantiate(function(Budget $budget): void {})
-        ;
+        return $this// ->afterInstantiate(function(Budget $budget): void {})
+            ;
     }
 }

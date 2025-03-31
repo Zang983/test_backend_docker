@@ -32,9 +32,9 @@ final class PotsFactory extends PersistentProxyObjectFactory
     protected function defaults(): array|callable
     {
         return [
-            'balance' => self::faker()->randomFloat(),
-            'color' => self::faker()->text(15),
-            'name' => self::faker()->text(255),
+            'balance' => self::faker()->randomFloat(2, 0, 10000),
+            'color' => self::faker()->colorName(),
+            'name' => self::faker()->userName(),
             'ownerUser' => UserFactory::new(),
             'target' => self::faker()->randomFloat(),
         ];

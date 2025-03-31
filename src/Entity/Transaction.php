@@ -19,8 +19,7 @@ class Transaction
     #[ORM\Column(length: 255)]
     private ?string $category = null;
 
-    #[ORM\Column]
-    private ?float $amount = null;
+    #[ORM\Column] private ?float $amount = null;
 
     #[ORM\ManyToOne(inversedBy: 'transactions')]
     #[ORM\JoinColumn(nullable: false)]

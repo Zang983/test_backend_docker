@@ -19,7 +19,7 @@ class Budget
     #[ORM\Column]
     private ?float $maxSpend = null;
 
-    #[ORM\Column(length: 20)]
+    #[ORM\Column(length: 35)]
     private ?string $color = null;
 
     #[ORM\ManyToOne(inversedBy: 'budgets')]

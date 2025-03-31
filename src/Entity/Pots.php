@@ -26,7 +26,7 @@ class Pots
     #[ORM\JoinColumn(nullable: false)]
     private ?User $ownerUser = null;
 
-    #[ORM\Column(length: 15)]
+    #[ORM\Column(length: 35)]
     private ?string $color = null;
 
     public function getId(): ?int

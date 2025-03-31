@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20250331104212 extends AbstractMigration
+final class Version20250331163707 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -21,7 +21,7 @@ final class Version20250331104212 extends AbstractMigration
     {
         // this up() migration is auto-generated, please modify it to your needs
         $this->addSql(<<<'SQL'
-            CREATE TABLE budget (id SERIAL NOT NULL, owner_user_id INT NOT NULL, category VARCHAR(255) NOT NULL, max_spend DOUBLE PRECISION NOT NULL, color VARCHAR(20) NOT NULL, PRIMARY KEY(id))
+            CREATE TABLE budget (id SERIAL NOT NULL, owner_user_id INT NOT NULL, category VARCHAR(255) NOT NULL, max_spend DOUBLE PRECISION NOT NULL, color VARCHAR(35) NOT NULL, PRIMARY KEY(id))
         SQL);
         $this->addSql(<<<'SQL'
             CREATE INDEX IDX_73F2F77B2B18554A ON budget (owner_user_id)
@@ -30,7 +30,7 @@ final class Version20250331104212 extends AbstractMigration
             CREATE TABLE party (id SERIAL NOT NULL, name VARCHAR(255) NOT NULL, avatar VARCHAR(255) DEFAULT NULL, PRIMARY KEY(id))
         SQL);
         $this->addSql(<<<'SQL'
-            CREATE TABLE pots (id SERIAL NOT NULL, owner_user_id INT NOT NULL, name VARCHAR(255) NOT NULL, balance DOUBLE PRECISION NOT NULL, target DOUBLE PRECISION NOT NULL, color VARCHAR(15) NOT NULL, PRIMARY KEY(id))
+            CREATE TABLE pots (id SERIAL NOT NULL, owner_user_id INT NOT NULL, name VARCHAR(255) NOT NULL, balance DOUBLE PRECISION NOT NULL, target DOUBLE PRECISION NOT NULL, color VARCHAR(35) NOT NULL, PRIMARY KEY(id))
         SQL);
         $this->addSql(<<<'SQL'
             CREATE INDEX IDX_8BAF6FE92B18554A ON pots (owner_user_id)

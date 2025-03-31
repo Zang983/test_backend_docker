@@ -32,8 +32,8 @@ final class TransactionFactory extends PersistentProxyObjectFactory
     protected function defaults(): array|callable
     {
         return [
-            'amount' => self::faker()->randomFloat(),
-            'category' => self::faker()->text(255),
+            'amount' => self::faker()->randomFloat(2,-10000, 10000),
+            'category' => self::faker()->randomElement(['Entertainment', 'Bills', 'Groceries', 'Dining Out', 'Transportation', 'Personal Care', 'Education', 'Lifestyle', 'Shopping', 'General']),
             'parties' => null, // TODO add App\Entity\party type manually
             'transectedAt' => \DateTimeImmutable::createFromMutable(self::faker()->dateTime()),
             'userOwner' => UserFactory::new(),
