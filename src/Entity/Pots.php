@@ -22,10 +22,6 @@ class Pots
     #[ORM\Column]
     private ?float $target = null;
 
-    #[ORM\ManyToOne(inversedBy: 'transaction')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?User $Owner = null;
-
     #[ORM\ManyToOne(inversedBy: 'pots')]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $ownerUser = null;
@@ -70,18 +66,6 @@ class Pots
     public function setTarget(float $target): static
     {
         $this->target = $target;
-
-        return $this;
-    }
-
-    public function getOwner(): ?User
-    {
-        return $this->Owner;
-    }
-
-    public function setOwner(?User $Owner): static
-    {
-        $this->Owner = $Owner;
 
         return $this;
     }
