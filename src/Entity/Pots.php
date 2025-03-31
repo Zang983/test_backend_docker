@@ -30,6 +30,9 @@ class Pots
     #[ORM\JoinColumn(nullable: false)]
     private ?User $ownerUser = null;
 
+    #[ORM\Column(length: 15)]
+    private ?string $color = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -91,6 +94,18 @@ class Pots
     public function setOwnerUser(?User $ownerUser): static
     {
         $this->ownerUser = $ownerUser;
+
+        return $this;
+    }
+
+    public function getColor(): ?string
+    {
+        return $this->color;
+    }
+
+    public function setColor(string $color): static
+    {
+        $this->color = $color;
 
         return $this;
     }

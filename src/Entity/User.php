@@ -61,11 +61,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: subscription::class, mappedBy: 'ownerUser', orphanRemoval: true)]
     private Collection $subscriptions;
 
+    /**
+     * @var Collection<int, Budget>
+     */
+    #[ORM\OneToMany(targetEntity: Budget::class, mappedBy: 'ownerUser', orphanRemoval: true)]
+    private Collection $budgets;
+
     public function __construct()
     {
         $this->transactions = new ArrayCollection();
         $this->pots = new ArrayCollection();
         $this->subscriptions = new ArrayCollection();
+        $this->budgets = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -263,6 +270,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             // set the owning side to null (unless already changed)
             if ($subscription->getOwnerUser() === $this) {
                 $subscription->setOwnerUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Budget>
+     */
+    public function getBudgets(): Collection
+    {
+        return $this->budgets;
+    }
+
+    public function addBudget(Budget $budget): static
+    {
+        if (!$this->budgets->contains($budget)) {
+            $this->budgets->add($budget);
+            $budget->setOwnerUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeBudget(Budget $budget): static
+    {
+        if ($this->budgets->removeElement($budget)) {
+            // set the owning side to null (unless already changed)
+            if ($budget->getOwnerUser() === $this) {
+                $budget->setOwnerUser(null);
             }
         }
 
