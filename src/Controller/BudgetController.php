@@ -105,9 +105,9 @@ final class BudgetController extends AbstractController
                 'message' => 'No data found',
             ]);
         }
-        $budget->setCategory($data['category']);
-        $budget->setMaxSpend($data['amount']);
-        $budget->setColor($data['color']);
+            $data['category'] ?? $budget->setCategory($data['category']);
+            $data['amount'] ?? $budget->setMaxSpend($data['amount']);
+            $data['color'] ?? $budget->setColor($data['color']);
         $errors = $validator->validate($budget);
         if (count($errors) > 0) {
             return new JsonResponse(['message' => 'Validation failed', 'errors' => (string)$errors], Response::HTTP_BAD_REQUEST);
@@ -120,6 +120,7 @@ final class BudgetController extends AbstractController
         }
         return new JsonResponse('', Response::HTTP_OK, [], true);
     }
+
     #[Route('/budget/{id}', name: 'delete_budget', methods: ['DELETE'])]
     public function deleteBudget(Security $security, EntityManagerInterface $manager, Budget $budget = null): JsonResponse
     {

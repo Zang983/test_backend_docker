@@ -8,9 +8,10 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class PotsController extends AbstractController
 {
-    #[Route('/pots', name: 'app_pots')]
+    #[Route('/pots', name: 'app_pots',methods: ['GET'])]
     public function index(): JsonResponse
     {
+
         return $this->json([
             'message' => 'Welcome to your new controller!',
             'path' => 'src/Controller/PotsController.php',
