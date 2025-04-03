@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\PotsRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: PotsRepository::class)]
 class Pots
@@ -11,15 +12,19 @@ class Pots
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['pots:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['pots:read'])]
     private ?string $name = null;
 
     #[ORM\Column]
+    #[Groups(['pots:read'])]
     private ?float $balance = null;
 
     #[ORM\Column]
+    #[Groups(['pots:read'])]
     private ?float $target = null;
 
     #[ORM\ManyToOne(inversedBy: 'pots')]
@@ -27,6 +32,7 @@ class Pots
     private ?User $ownerUser = null;
 
     #[ORM\Column(length: 35)]
+    #[Groups(['pots:read'])]
     private ?string $color = null;
 
     public function getId(): ?int

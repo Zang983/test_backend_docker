@@ -6,7 +6,6 @@ use App\Entity\Budget;
 use App\Entity\User;
 use App\Repository\BudgetRepository;
 
-use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -46,7 +45,7 @@ final class BudgetController extends AbstractController
     }
 
     #[Route('/budget/', name: 'create_budget', methods: ['POST'])]
-    public function createBudget(Security $security, SerializerInterface $serializer, Request $request, EntityManagerInterface $manager, ValidatorInterface $validator): JsonResponse
+    public function createBudget(Security $security, Request $request, EntityManagerInterface $manager, ValidatorInterface $validator): JsonResponse
     {
         /** @var User $user */
         $user = $security->getUser();
@@ -79,7 +78,7 @@ final class BudgetController extends AbstractController
         return new JsonResponse('', Response::HTTP_OK, [], true);
     }
 
-    #[Route('/budget/{id}/edit', name: 'edit_budget', methods: ['PUT'])]
+    #[Route('/budget/{id}', name: 'edit_budget', methods: ['PUT'])]
     public function editBudget(Security $security, EntityManagerInterface $manager, Request $request, ValidatorInterface $validator, Budget $budget = null): JsonResponse
     {
         /** @var User $user */
@@ -105,9 +104,10 @@ final class BudgetController extends AbstractController
                 'message' => 'No data found',
             ]);
         }
-            $data['category'] ?? $budget->setCategory($data['category']);
-            $data['amount'] ?? $budget->setMaxSpend($data['amount']);
-            $data['color'] ?? $budget->setColor($data['color']);
+        $budget->setCategory($data['category'] ?? $budget->getCategory())
+            ->setMaxSpend($data['maxSpend'] ?? $budget->getMaxSpend())
+            ->setColor($data['color'] ?? $budget->getColor());
+
         $errors = $validator->validate($budget);
         if (count($errors) > 0) {
             return new JsonResponse(['message' => 'Validation failed', 'errors' => (string)$errors], Response::HTTP_BAD_REQUEST);
