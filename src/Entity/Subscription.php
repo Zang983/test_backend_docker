@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\SubscriptionRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: SubscriptionRepository::class)]
 class Subscription
@@ -12,18 +13,23 @@ class Subscription
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['subscription:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['subscription:read'])]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::SMALLINT)]
+    #[Groups(['subscription:read'])]
     private ?int $dayOfMonth = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['subscription:read'])]
     private ?string $frequency = null;
 
     #[ORM\Column]
+    #[Groups(['subscription:read'])]
     private ?float $amount = null;
 
     #[ORM\ManyToOne(inversedBy: 'subscriptions')]
