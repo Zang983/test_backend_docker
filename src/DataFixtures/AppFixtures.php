@@ -22,28 +22,35 @@ class AppFixtures extends Fixture
 
     public function load(ObjectManager $manager): void
     {
-        $users = UserFactory::createMany(50, function () {
+        $users = UserFactory::createMany(10, function () {
             return [
                 'password' => $this->hasher->hashPassword(new User(), 'password'),
             ];
         });
         $parties = PartyFactory::createMany(60);
 
-        $budgets = BudgetFactory::createMany(200, function () use ($users) {
-            return [
-                'ownerUser' => $users[array_rand($users)],
-            ];
-        });
-        $pots = PotsFactory::createMany(200, function () use ($users) {
+
+        $pots = PotsFactory::createMany(60, function () use ($users) {
             return [
                 'ownerUser' => $users[array_rand($users)],
             ];
         });
 
-        $transactions = TransactionFactory::createMany(250, function () use ($users, $parties) {
+        $budgets = BudgetFactory::createMany(60, function () use ($users) {
+            return [
+                'ownerUser' => $users[array_rand($users)],
+            ];
+        });
+
+        $transactions = TransactionFactory::createMany(350, function () use ($users, $parties, $budgets) {
+            $randomBudget = null;
+            if (random_int(0, 1)) { // 50% de chance
+                $randomBudget = $budgets[array_rand($budgets)];
+            }
             return [
                 'parties' => $parties[array_rand($parties)],
                 'userOwner' => $users[array_rand($users)],
+                'budget' => $randomBudget,
             ];
         });
 

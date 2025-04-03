@@ -20,7 +20,7 @@ security:
           username_path: email
           password_path: password
     api:
-        pattern: ^/api
+        pattern: ^/
         stateless: true
         jwt: ~
     dev:

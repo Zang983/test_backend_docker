@@ -15,7 +15,7 @@ class Transaction
     private ?int $id = null;
 
     #[ORM\Column]
-    #[Groups("transaction:read")]
+    #[Groups(["transaction:read", "budget:read"])]
     private ?\DateTimeImmutable $transectedAt = null;
 
     #[ORM\Column(length: 255)]
@@ -23,7 +23,7 @@ class Transaction
     private ?string $category = null;
 
     #[ORM\Column]
-    #[Groups("transaction:read")]
+    #[Groups(["transaction:read", "budget:read"])]
     private ?float $amount = null;
 
     #[ORM\ManyToOne(inversedBy: 'transactions')]
@@ -32,8 +32,12 @@ class Transaction
 
     #[ORM\ManyToOne(inversedBy: 'transactions')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups("transaction:read")]
+    #[Groups(["transaction:read", "budget:read"])]
     private ?Party $parties = null;
+
+    #[ORM\ManyToOne(inversedBy: 'transactions')]
+    #[ORM\JoinColumn(onDelete: 'SET NULL')]
+    private ?Budget $budget = null;
 
     public function getId(): ?int
     {
@@ -96,6 +100,18 @@ class Transaction
     public function setParties(?Party $parties): static
     {
         $this->parties = $parties;
+
+        return $this;
+    }
+
+    public function getBudget(): ?Budget
+    {
+        return $this->budget;
+    }
+
+    public function setBudget(?Budget $budget): static
+    {
+        $this->budget = $budget;
 
         return $this;
     }
