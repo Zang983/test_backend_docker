@@ -1,0 +1,60 @@
+services:
+  # Service PHP et Apache
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: duduProject
+    restart: unless-stopped
+    volumes:
+      - ./:/var/www/html
+    ports:
+      - "8080:80"
+    depends_on:
+      - database
+    networks:
+      - symfony_network
+    environment:
+      - DATABASE_URL=postgresql://root:root@database:5432/duduProject
+    command: >
+      bash -c "composer install &&
+               service apache2 start &&
+               php bin/console doctrine:database:drop --if-exists --force &&
+               php bin/console doctrine:database:create &&
+               php bin/console doctrine:migrations:migrate &&
+               php bin/console doctrine:fixtures:load --no-interaction &&
+               symfony serve --no-tls"
+
+  # Service PostgreSQL
+  database:
+    image: postgres
+    container_name: symfony_db_duduProject
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: "duduProject"
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - symfony_network
+
+  # Service Adminer
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - "8081:8080"
+    depends_on:
+      - database
+    networks:
+      - symfony_network
+
+networks:
+  symfony_network:
+    driver: bridge
+
+volumes:
+  db_data:
