@@ -29,13 +29,13 @@ final class BudgetController extends AbstractController
                 'message' => 'You are not logged in',
             ]);
         }
-        $result = $repo->findBy(['ownerUser' => $user->getId()]);
+        $result = $repo->findBudgetWithTransactionsAndParties($user);
         if (!$result) {
             return $this->json([
                 'message' => 'No budgets found for this user',
             ]);
         }
-        $response = $serializer->serialize($result, 'json', ['groups' => 'budget:read']);
+        $response = $serializer->serialize($result, 'json');
         if (!$response) {
             return $this->json([
                 'message' => 'No budgets found for this user',

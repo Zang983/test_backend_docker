@@ -29,8 +29,8 @@ final class TransactionController extends AbstractController
                 'message' => 'You are not logged in',
             ]);
         }
-        $transactions = $repo->findBy(['userOwner' => $user->getId()]);
-        $json = $serializer->serialize($transactions, 'json', ['groups' => 'transaction:read']);
+        $transactions = $repo->findAllByUserWithParties($user->getId());
+        $json = $serializer->serialize($transactions, 'json');
 
         return new JsonResponse($json, Response::HTTP_OK, [], true);
     }
@@ -41,35 +41,41 @@ final class TransactionController extends AbstractController
         /** @var User $user */
         $user = $security->getUser();
         $data = json_decode($request->getContent(), true);
-        $transaction = new Transaction();
-        $transaction->setCategory($data['transaction']['category']);
-        $transaction->setAmount($data['transaction']['amount']);
-        $transaction->setUserOwner($user->getId());
-        $transaction->setTransectedAt($data['transaction']['transectedAt']);
-
-        $partyName = $data['party']['name'];
-        $request = $partyRepo->findOneBy(['name' => $partyName]);
-        if ($request) {
-            $party = $request;
-        } else {
-            $party = new Party();
-            $party->setName($data['party']['name']);
+        if (empty($data)) {
+            return new JsonResponse(['error' => 'No data found'], Response::HTTP_BAD_REQUEST);
         }
+
+        $category = $data['transaction']['category'] ?? null;
+        $amount = $data['transaction']['amount'] ?? null;
+        $partyName = $data['party']['name'];
+        if (!$category || !$amount || !$partyName) {
+            return new JsonResponse(['error' => 'Missing required fields'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $transaction = new Transaction();
+        $transaction->setCategory($category)
+            ->setAmount($amount)
+            ->setUserOwner($user)
+            ->setTransectedAt(new \DateTimeImmutable());
+        $party = $partyRepo->findOneBy(['name' => $partyName]) ?? (new Party())->setName($partyName);
         $transaction->setParties($party);
         $party->addTransaction($transaction);
 
-        $partyErrors = $validator->validate($party);
-        $transactionErrors = $validator->validate($transaction);
-        if (count($partyErrors) > 0 || count($transactionErrors) > 0) {
-            $errors = [];
-            foreach ($partyErrors as $error) {
-                $errors[] = $error->getMessage();
+        $errors = [
+            'party' => $validator->validate($party),
+            'transaction' => $validator->validate($transaction),
+        ];
+
+        $errorMessages = [];
+        foreach ($errors as $entityName => $violations) {
+            foreach ($violations as $violation) {
+                $errorMessages[] = "{$entityName}: " . $violation->getMessage();
             }
-            foreach ($transactionErrors as $error) {
-                $errors[] = $error->getMessage();
-            }
-            return new JsonResponse(['errors' => $errors], Response::HTTP_BAD_REQUEST);
         }
+        if (!empty($errorMessages)) {
+            return new JsonResponse(['errors' => $errorMessages], Response::HTTP_BAD_REQUEST);
+        }
+
         $manager->persist($transaction);
         $manager->persist($party);
         $manager->flush();
@@ -78,7 +84,7 @@ final class TransactionController extends AbstractController
     }
 
     #[Route('/transaction/{id}', name: 'delete_transaction', methods: ['DELETE'])]
-    public function deleteTransaction(TransactionRepository $repo, EntityManagerInterface $manager,Security $security, Transaction $transaction = null): JsonResponse
+    public function deleteTransaction(EntityManagerInterface $manager, Security $security, Transaction $transaction = null): JsonResponse
     {
         /** @var User $user */
         $user = $security->getUser();

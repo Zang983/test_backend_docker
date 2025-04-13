@@ -16,6 +16,16 @@ class TransactionRepository extends ServiceEntityRepository
         parent::__construct($registry, Transaction::class);
     }
 
+    public function findAllByUserWithParties($userId): array{
+        return $this->createQueryBuilder('t')
+            ->leftJoin('t.parties', 'p')
+            ->addSelect('p', )
+            ->andWhere('t.userOwner = :userId')
+            ->setParameter('userId', $userId)
+            ->getQuery()
+            ->getArrayResult();
+    }
+
 //    public function findAllWithParties() : array
 //    {
 //        return $this->createQueryBuilder('t')

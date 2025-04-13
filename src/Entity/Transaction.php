@@ -15,7 +15,6 @@ class Transaction
     private ?int $id = null;
 
     #[ORM\Column]
-    #[Groups(["transaction:read", "budget:read"])]
     private ?\DateTimeImmutable $transectedAt = null;
 
     #[ORM\Column(length: 255)]
@@ -23,7 +22,6 @@ class Transaction
     private ?string $category = null;
 
     #[ORM\Column]
-    #[Groups(["transaction:read", "budget:read"])]
     private ?float $amount = null;
 
     #[ORM\ManyToOne(inversedBy: 'transactions')]
@@ -32,7 +30,6 @@ class Transaction
 
     #[ORM\ManyToOne(inversedBy: 'transactions')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(["transaction:read", "budget:read"])]
     private ?Party $parties = null;
 
     #[ORM\ManyToOne(inversedBy: 'transactions')]

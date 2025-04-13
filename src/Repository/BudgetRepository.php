@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Budget;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -14,6 +15,19 @@ class BudgetRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Budget::class);
+    }
+
+    public function findBudgetWithTransactionsAndParties(User $user){
+        $userId = $user->getId();
+        return $this->createQueryBuilder('b')
+            ->leftJoin('b.transactions', 't')
+            ->leftJoin('t.parties', 'p')
+            ->addSelect('t', 'p')
+            ->andWhere('b.ownerUser = :userId')
+            ->setParameter('userId', $userId)
+            ->getQuery()
+            ->getArrayResult();
+
     }
 
     //    /**
