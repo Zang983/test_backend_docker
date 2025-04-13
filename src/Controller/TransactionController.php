@@ -8,6 +8,9 @@ use App\Entity\User;
 use App\Repository\PartyRepository;
 use App\Repository\TransactionRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use JetBrains\PhpStorm\NoReturn;
+use Pagerfanta\Doctrine\ORM\QueryAdapter;
+use Pagerfanta\Pagerfanta;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -19,8 +22,16 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 final class TransactionController extends AbstractController
 {
-    #[Route('/transactions', name: 'app_transaction', methods: ['GET'])]
-    public function getTransactions(TransactionRepository $repo, SerializerInterface $serializer, Security $security): JsonResponse
+    private array $categories;
+
+    #[NoReturn]
+    public function __construct($categories)
+    {
+        $this->categories = $categories;
+    }
+
+    #[Route('/transactions/', name: 'app_transaction', methods: ['GET'])]
+    public function getTransactions(TransactionRepository $repo, SerializerInterface $serializer, Request $request, Security $security, int $page = 1): JsonResponse
     {
         /** @var User $user */
         $user = $security->getUser();
@@ -29,9 +40,39 @@ final class TransactionController extends AbstractController
                 'message' => 'You are not logged in',
             ]);
         }
-        $transactions = $repo->findAllByUserWithParties($user->getId());
-        $json = $serializer->serialize($transactions, 'json');
+        $params = ['field' => 'date', 'order' => 'ASC']; // Valeurs par défaut
+        $page = $request->query->getInt('page', 1);
+        if ($request->query->has('field')) {
+            $field = $request->query->get('field');
+            if (in_array($field, ['date', 'amount', 'alphabetical '], true)) {
+                $params['field'] = $field;
+            }
+        }
+        if ($request->query->has('order')) {
+            $order = strtoupper($request->query->get('order'));
+            if (in_array($order, ['ASC', 'DESC'])) {
+                $params['order'] = $order;
+            }
+        }
 
+        if ($request->query->has('category')) {
+            $category = $request->query->get('category');
+            if (in_array($category, $this->categories, true)) {
+                $params['category'] = $category;
+            }
+        }
+
+        $queryBuilder = $repo->findAllByUserWithParties($user, $params);
+        $pagerfanta = new Pagerfanta(new QueryAdapter($queryBuilder));
+        $pagerfanta->setMaxPerPage(10);
+        if ($pagerfanta->getNbPages() < $page) {
+            return new JsonResponse(['error' => 'Page not found!!!!!!!!!!!!'], Response::HTTP_NOT_FOUND);
+        }
+        $pagerfanta->setCurrentPage($page);
+
+
+
+        $json = $serializer->serialize($pagerfanta, 'json', ['groups' => ['transaction:read']]);
         return new JsonResponse($json, Response::HTTP_OK, [], true);
     }
 
@@ -51,7 +92,7 @@ final class TransactionController extends AbstractController
         if (!$category || !$amount || !$partyName) {
             return new JsonResponse(['error' => 'Missing required fields'], Response::HTTP_BAD_REQUEST);
         }
-        if(!in_array($category, $this->getParameter('categories'))) {
+        if (!in_array($category, $this->getParameter('categories'))) {
             return new JsonResponse(['error' => 'Invalid category'], Response::HTTP_BAD_REQUEST);
         }
 

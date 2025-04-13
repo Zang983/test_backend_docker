@@ -14,19 +14,24 @@ class Budget
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups('budget:read')]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups('budget:read')]
     private ?string $category = null;
 
     #[ORM\Column]
+    #[Groups('budget:read')]
     private ?float $maxSpend = null;
 
     #[ORM\Column(length: 35)]
+    #[Groups('budget:read')]
     private ?string $color = null;
 
     #[ORM\ManyToOne(inversedBy: 'budgets')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups('budget:read')]
     private ?user $ownerUser = null;
 
     /**
@@ -34,6 +39,7 @@ class Budget
      */
     #[ORM\OneToMany(targetEntity: Transaction::class, mappedBy: 'budget')]
     #[ORM\JoinColumn(onDelete: 'SET NULL')]
+    #[Groups('budget:read')]
     private Collection $transactions;
 
     public function __construct()

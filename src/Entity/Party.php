@@ -17,9 +17,11 @@ class Party
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups ('transaction:read')]
     private ?string $name = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups ('transaction:read')]
     private ?string $avatar = null;
 
     /**
