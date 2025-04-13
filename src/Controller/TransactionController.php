@@ -19,7 +19,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 final class TransactionController extends AbstractController
 {
-    #[Route('/transaction', name: 'app_transaction', methods: ['GET'])]
+    #[Route('/transactions', name: 'app_transaction', methods: ['GET'])]
     public function getTransactions(TransactionRepository $repo, SerializerInterface $serializer, Security $security): JsonResponse
     {
         /** @var User $user */
@@ -41,7 +41,7 @@ final class TransactionController extends AbstractController
         /** @var User $user */
         $user = $security->getUser();
         $data = json_decode($request->getContent(), true);
-        if (empty($data)) {
+        if (!$data || !isset($data['transaction']) || !isset($data['party'])) {
             return new JsonResponse(['error' => 'No data found'], Response::HTTP_BAD_REQUEST);
         }
 
@@ -50,6 +50,9 @@ final class TransactionController extends AbstractController
         $partyName = $data['party']['name'];
         if (!$category || !$amount || !$partyName) {
             return new JsonResponse(['error' => 'Missing required fields'], Response::HTTP_BAD_REQUEST);
+        }
+        if(!in_array($category, $this->getParameter('categories'))) {
+            return new JsonResponse(['error' => 'Invalid category'], Response::HTTP_BAD_REQUEST);
         }
 
         $transaction = new Transaction();
@@ -80,7 +83,7 @@ final class TransactionController extends AbstractController
         $manager->persist($party);
         $manager->flush();
 
-        return new JsonResponse($transaction, Response::HTTP_CREATED, [], true);
+        return new JsonResponse("Nouvelle entrée créée ! ", Response::HTTP_CREATED, [], true);
     }
 
     #[Route('/transaction/{id}', name: 'delete_transaction', methods: ['DELETE'])]

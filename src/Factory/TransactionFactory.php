@@ -10,13 +10,15 @@ use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
  */
 final class TransactionFactory extends PersistentProxyObjectFactory
 {
+    private $categories = [];
     /**
      * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#factories-as-services
      *
      * @todo inject services if required
      */
-    public function __construct()
+    public function __construct(array $categories)
     {
+        $this->categories = $categories;
     }
 
     public static function class(): string
@@ -31,9 +33,10 @@ final class TransactionFactory extends PersistentProxyObjectFactory
      */
     protected function defaults(): array|callable
     {
+
         return [
             'amount' => self::faker()->randomFloat(2,-10000, 10000),
-            'category' => self::faker()->randomElement(['Entertainment', 'Bills', 'Groceries', 'Dining Out', 'Transportation', 'Personal Care', 'Education', 'Lifestyle', 'Shopping', 'General']),
+            'category' => self::faker()->randomElement($this->categories),
             'parties' => null, // TODO add App\Entity\party type manually
             'transectedAt' => \DateTimeImmutable::createFromMutable(self::faker()->dateTime()),
             'userOwner' => UserFactory::new(),

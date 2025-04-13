@@ -35,7 +35,7 @@ final class UserFactory extends PersistentProxyObjectFactory
         $lastname = self::faker()->lastName();
         $email = $firstname . '.' . $lastname.'@' . self::faker()->domainName();
         return [
-            'balance' => self::faker()->randomFloat(),
+            'balance' => self::faker()->randomFloat(2),
             'email' => $email,
             'firstname' => $firstname,
             'lastname' => $lastname,
