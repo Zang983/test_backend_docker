@@ -22,6 +22,10 @@ class Transaction
     #[Groups("transaction:read")]
     private ?string $category = null;
 
+    #[ORM\Column(type: 'boolean')]
+    #[Groups("transaction:read")]
+    private ?bool $isRecurring = false;
+
     #[ORM\Column]
     #[Groups(["transaction:read", "budget:read"])]
     private ?float $amount = null;
@@ -113,6 +117,17 @@ class Transaction
     {
         $this->budget = $budget;
 
+        return $this;
+    }
+
+    public function getIsRecurring(): ?bool
+    {
+        return $this->isRecurring;
+    }
+
+    public function setIsRecurring(bool $isRecurring): static
+    {
+        $this->isRecurring = $isRecurring;
         return $this;
     }
 }

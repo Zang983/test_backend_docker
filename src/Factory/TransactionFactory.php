@@ -11,6 +11,7 @@ use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 final class TransactionFactory extends PersistentProxyObjectFactory
 {
     private $categories = [];
+
     /**
      * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#factories-as-services
      *
@@ -35,11 +36,12 @@ final class TransactionFactory extends PersistentProxyObjectFactory
     {
 
         return [
-            'amount' => self::faker()->randomFloat(2,-10000, 10000),
+            'amount' => self::faker()->randomFloat(2, -10000, 10000),
             'category' => self::faker()->randomElement($this->categories),
             'parties' => null, // TODO add App\Entity\party type manually
             'transectedAt' => \DateTimeImmutable::createFromMutable(self::faker()->dateTime()),
             'userOwner' => UserFactory::new(),
+            'isRecurring' => self::faker()->boolean(),
         ];
     }
 
@@ -48,8 +50,7 @@ final class TransactionFactory extends PersistentProxyObjectFactory
      */
     protected function initialize(): static
     {
-        return $this
-            // ->afterInstantiate(function(Transaction $transaction): void {})
-        ;
+        return $this// ->afterInstantiate(function(Transaction $transaction): void {})
+            ;
     }
 }

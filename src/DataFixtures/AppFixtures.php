@@ -7,7 +7,6 @@ use App\Entity\User;
 use App\Factory\BudgetFactory;
 use App\Factory\PartyFactory;
 use App\Factory\PotsFactory;
-use App\Factory\SubscriptionFactory;
 use App\Factory\TransactionFactory;
 use App\Factory\UserFactory;
 use Doctrine\Bundle\FixturesBundle\Fixture;
@@ -44,6 +43,11 @@ class AppFixtures extends Fixture
                 'ownerUser' => $users[array_rand($users)],
             ];
         });
+        $firstUserPots = PotsFactory::createMany(6, function () use ($firstUser) {
+            return [
+                'ownerUser' => $firstUser,
+            ];
+        });
 
         $budgets = BudgetFactory::createMany(60, function () use ($users) {
             return [
@@ -66,6 +70,7 @@ class AppFixtures extends Fixture
             }
             return [
                 'amount' => $amount,
+                'isRecurring' => $amount > 0 ? (bool)random_int(0, 1) : false,
                 'parties' => $parties[array_rand($parties)],
                 'userOwner' => $firstUser,
                 'budget' => $randomBudget,
@@ -85,13 +90,6 @@ class AppFixtures extends Fixture
                 'parties' => $parties[array_rand($parties)],
                 'userOwner' => $users[array_rand($users)],
                 'budget' => $randomBudget,
-            ];
-        });
-
-
-        $subscriptions = SubscriptionFactory::createMany(200, function () use ($users) {
-            return [
-                'ownerUser' => $users[array_rand($users)],
             ];
         });
         $manager->flush();

@@ -27,7 +27,15 @@ class BudgetRepository extends ServiceEntityRepository
             ->setParameter('userId', $userId)
             ->getQuery()
             ->getArrayResult();
+    }
 
+    public function getBudgetWithoutTransactions(User $user): array
+    {
+        return $this->createQueryBuilder('b')
+            ->andWhere('b.ownerUser = :userId')
+            ->setParameter('userId', $user->getId())
+            ->getQuery()
+            ->getArrayResult();
     }
 
     //    /**

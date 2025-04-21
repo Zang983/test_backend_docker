@@ -1,0 +1,470 @@
+openapi: 3.0.0
+info:
+  title: Personal Finance API
+  description: |
+    API pour la gestion des finances personnelles
+    
+    ## Environnement
+    - PHP 8.2
+    - Apache
+    - JWT pour l'authentification
+    
+    ## Fonctionnalités principales
+    - Gestion des transactions
+    - Gestion des budgets
+    - Gestion des pots d'épargne
+    - Suivi des abonnements
+    - Tableau de bord personnalisé
+  version: 1.0.0
+  contact:
+    name: Support API
+    
+servers:
+  - url: http://localhost:8000
+    description: Serveur de développement
+
+security:
+  - BearerAuth: []
+
+components:
+  schemas:
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+        errors:
+          type: array
+          items:
+            type: string
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        email:
+          type: string
+          format: email
+          example: "user@example.com"
+        roles:
+          type: array
+          items:
+            type: string
+            enum: ['ROLE_USER', 'ROLE_ADMIN']
+          example: ['ROLE_USER']
+
+    Budget:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        category:
+          type: string
+          example: "Alimentation"
+        maxSpend:
+          type: number
+          format: float
+          example: 500.00
+        color:
+          type: string
+          example: "#FF5733"
+        ownerUser:
+          $ref: '#/components/schemas/User'
+      required:
+        - category
+        - maxSpend
+        - color
+
+    Transaction:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        category:
+          type: string
+          example: "Alimentation"
+        amount:
+          type: number
+          format: float
+          example: 42.50
+        transectedAt:
+          type: string
+          format: date-time
+          example: "2024-03-20T15:30:00Z"
+        isRecurring:
+          type: boolean
+          default: false
+        parties:
+          $ref: '#/components/schemas/Party'
+        userOwner:
+          $ref: '#/components/schemas/User'
+      required:
+        - category
+        - amount
+
+    Party:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          example: "Carrefour"
+      required:
+        - name
+
+    Pots:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          example: "Vacances"
+        balance:
+          type: number
+          format: float
+          example: 1500.00
+        target:
+          type: number
+          format: float
+          example: 3000.00
+        color:
+          type: string
+          example: "#4287f5"
+        ownerUser:
+          $ref: '#/components/schemas/User'
+      required:
+        - name
+        - balance
+        - target
+        - color
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        Utiliser le token JWT obtenu lors de l'authentification.
+        Format: Bearer <token>
+
+  responses:
+    Unauthorized:
+      description: Non authentifié
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "JWT Token not found"
+
+    ValidationError:
+      description: Erreur de validation
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "Validation failed"
+              errors:
+                type: array
+                items:
+                  type: string
+                example:
+                  - "category: This value should not be blank"
+                  - "amount: This value should be positive"
+
+paths:
+  /:
+    get:
+      tags:
+        - Dashboard
+      summary: Récupérer le tableau de bord
+      description: Retourne les données agrégées du tableau de bord de l'utilisateur
+      responses:
+        '200':
+          description: Données du tableau de bord
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transactions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Transaction'
+                  budgets:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Budget'
+                  pots:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Pots'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          description: Aucun utilisateur trouvé
+
+  /transactions:
+    get:
+      tags:
+        - Transactions
+      summary: Récupérer les transactions
+      description: Retourne la liste paginée des transactions avec possibilité de tri et filtrage
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+          description: Numéro de page
+        - in: query
+          name: field
+          schema:
+            type: string
+            enum: [date, amount, alphabetical]
+            default: date
+          description: Champ de tri
+        - in: query
+          name: order
+          schema:
+            type: string
+            enum: [ASC, DESC]
+            default: ASC
+          description: Ordre de tri
+        - in: query
+          name: category
+          schema:
+            type: string
+          description: Filtrer par catégorie
+      responses:
+        '200':
+          description: Liste des transactions paginée
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  currentPage:
+                    type: integer
+                  maxPages:
+                    type: integer
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Transaction'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          description: Page non trouvée
+
+  /transaction:
+    post:
+      tags:
+        - Transactions
+      summary: Créer une nouvelle transaction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                transaction:
+                  type: object
+                  properties:
+                    category:
+                      type: string
+                      example: "Alimentation"
+                    amount:
+                      type: number
+                      example: 42.50
+                party:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      example: "Carrefour"
+              required:
+                - transaction
+                - party
+            example:
+              transaction:
+                category: "Alimentation"
+                amount: 42.50
+              party:
+                name: "Carrefour"
+      responses:
+        '201':
+          description: Transaction créée avec succès
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /transaction/{id}:
+    delete:
+      tags:
+        - Transactions
+      summary: Supprimer une transaction
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: ID de la transaction
+      responses:
+        '200':
+          description: Transaction supprimée
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Non autorisé à supprimer cette transaction
+        '404':
+          description: Transaction non trouvée
+
+  /subscription:
+    get:
+      tags:
+        - Abonnements
+      summary: Récupérer les abonnements
+      description: Retourne la liste des transactions récurrentes
+      responses:
+        '200':
+          description: Liste des abonnements
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Transaction'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /pots:
+    get:
+      tags:
+        - Pots
+      summary: Récupérer les pots d'épargne
+      responses:
+        '200':
+          description: Liste des pots d'épargne
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Pots'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    post:
+      tags:
+        - Pots
+      summary: Créer un nouveau pot d'épargne
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "Vacances"
+                balance:
+                  type: number
+                  example: 1500.00
+                target:
+                  type: number
+                  example: 3000.00
+                color:
+                  type: string
+                  example: "#4287f5"
+              required:
+                - name
+                - balance
+                - target
+                - color
+      responses:
+        '201':
+          description: Pot créé avec succès
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /pots/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+        description: ID du pot
+
+    put:
+      tags:
+        - Pots
+      summary: Modifier un pot d'épargne
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                balance:
+                  type: number
+                target:
+                  type: number
+                color:
+                  type: string
+      responses:
+        '200':
+          description: Pot modifié avec succès
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          description: Pot non trouvé
+
+    delete:
+      tags:
+        - Pots
+      summary: Supprimer un pot d'épargne
+      responses:
+        '200':
+          description: Pot supprimé avec succès
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          description: Pot non trouvé
+
+tags:
+  - name: Dashboard
+    description: Opérations liées au tableau de bord
+  - name: Transactions
+    description: Gestion des transactions
+  - name: Budgets
+    description: Gestion des budgets
+  - name: Pots
+    description: Gestion des pots d'épargne
+  - name: Abonnements
+    description: Gestion des abonnements récurrents

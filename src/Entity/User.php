@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
@@ -20,6 +21,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
+    #[Groups('user:read')]
     private ?string $email = null;
 
     /**
@@ -35,12 +37,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $password = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups('user:read')]
     private ?string $firstname = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups('user:read')]
     private ?string $lastname = null;
 
     #[ORM\Column]
+    #[Groups('user:read')]
     private ?float $balance = null;
 
     /**
@@ -56,12 +61,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private Collection $pots;
 
     /**
-     * @var Collection<int, Subscription>
-     */
-    #[ORM\OneToMany(targetEntity: Subscription::class, mappedBy: 'ownerUser', orphanRemoval: true)]
-    private Collection $subscriptions;
-
-    /**
      * @var Collection<int, Budget>
      */
     #[ORM\OneToMany(targetEntity: Budget::class, mappedBy: 'ownerUser', orphanRemoval: true)]
@@ -71,7 +70,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $this->transactions = new ArrayCollection();
         $this->pots = new ArrayCollection();
-        $this->subscriptions = new ArrayCollection();
         $this->budgets = new ArrayCollection();
     }
 
@@ -240,36 +238,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             // set the owning side to null (unless already changed)
             if ($pot->getOwnerUser() === $this) {
                 $pot->setOwnerUser(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, subscription>
-     */
-    public function getSubscriptions(): Collection
-    {
-        return $this->subscriptions;
-    }
-
-    public function addSubscription(subscription $subscription): static
-    {
-        if (!$this->subscriptions->contains($subscription)) {
-            $this->subscriptions->add($subscription);
-            $subscription->setOwnerUser($this);
-        }
-
-        return $this;
-    }
-
-    public function removeSubscription(subscription $subscription): static
-    {
-        if ($this->subscriptions->removeElement($subscription)) {
-            // set the owning side to null (unless already changed)
-            if ($subscription->getOwnerUser() === $this) {
-                $subscription->setOwnerUser(null);
             }
         }
 
