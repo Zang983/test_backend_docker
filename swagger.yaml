@@ -222,7 +222,7 @@ paths:
       tags:
         - Transactions
       summary: Récupérer les transactions
-      description: Retourne la liste paginée des transactions avec possibilité de tri et filtrage
+      description: Retourne la liste paginée des transactions avec possibilité de tri, filtrage et recherche
       parameters:
         - in: query
           name: page
@@ -236,19 +236,30 @@ paths:
             type: string
             enum: [date, amount, alphabetical]
             default: date
-          description: Champ de tri
+          description: Champ de tri (date pour la date de transaction, amount pour le montant, alphabetical pour le tri alphabétique par nom de partie)
         - in: query
           name: order
           schema:
             type: string
             enum: [ASC, DESC]
             default: ASC
-          description: Ordre de tri
+          description: Ordre de tri (ASC pour ascendant, DESC pour descendant)
         - in: query
           name: category
           schema:
             type: string
-          description: Filtrer par catégorie
+          description: Filtrer par catégorie de transaction
+        - in: query
+          name: recurringBills
+          schema:
+            type: boolean
+            default: false
+          description: Filtrer les transactions récurrentes (true pour afficher uniquement les transactions récurrentes)
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: Rechercher par montant exact (si numérique) ou par nom de partie (insensible à la casse)
       responses:
         '200':
           description: Liste des transactions paginée
@@ -259,12 +270,23 @@ paths:
                 properties:
                   currentPage:
                     type: integer
+                    example: 1
                   maxPages:
                     type: integer
+                    example: 5
+                  numResults:
+                    type: integer
+                    example: 42
                   results:
                     type: array
                     items:
                       $ref: '#/components/schemas/Transaction'
+                  hasNextPage:
+                    type: boolean
+                    example: true
+                  hasPreviousPage:
+                    type: boolean
+                    example: false
         '401':
           $ref: '#/components/responses/Unauthorized'
         '404':

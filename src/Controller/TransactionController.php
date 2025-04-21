@@ -40,11 +40,11 @@ final class TransactionController extends AbstractController
                 'message' => 'You are not logged in',
             ]);
         }
-        $params = ['field' => 'date', 'order' => 'ASC']; // Valeurs par défaut
+        $params = ['field' => 'date', 'order' => 'ASC', 'recurringBills' => false, 'search' => ""]; // Valeurs par défaut
         $page = $request->query->getInt('page', 1);
         if ($request->query->has('field')) {
             $field = $request->query->get('field');
-            if (in_array($field, ['date', 'amount', 'alphabetical '], true)) {
+            if (in_array($field, ['date', 'amount', 'alphabetical'], true)) {
                 $params['field'] = $field;
             }
         }
@@ -54,22 +54,32 @@ final class TransactionController extends AbstractController
                 $params['order'] = $order;
             }
         }
-
         if ($request->query->has('category')) {
             $category = $request->query->get('category');
             if (in_array($category, $this->categories, true)) {
                 $params['category'] = $category;
             }
         }
+        if ($request->query->has('recurringBills')) {
+            $params['recurringBills'] = filter_var(
+                $request->query->get('recurringBills'),
+                FILTER_VALIDATE_BOOLEAN
+            );
+        }
+        if ($request->query->has('search')) {
+            $search = $request->query->get('search');
+            if (is_string($search) || is_numeric($search)) {
+                $params['search'] = trim((string) $search);
+            }
+        }
 
-        $queryBuilder = $repo->findAllByUserWithParties($user, $params);
+        $queryBuilder = $repo->findByUserWithParties($user, $params);
         $pagerfanta = new Pagerfanta(new QueryAdapter($queryBuilder));
         $pagerfanta->setMaxPerPage(10);
         if ($pagerfanta->getNbPages() < $page) {
             return new JsonResponse(['error' => 'Page not found!!!!!!!!!!!!'], Response::HTTP_NOT_FOUND);
         }
         $pagerfanta->setCurrentPage($page);
-
 
 
         $json = $serializer->serialize($pagerfanta, 'json', ['groups' => ['transaction:read']]);
