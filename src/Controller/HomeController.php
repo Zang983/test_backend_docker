@@ -15,7 +15,7 @@ final class HomeController extends AbstractController
     public function index(UserRepository $userRepo, SerializerInterface $serializer): JsonResponse
     {
 
-        $result = $userRepo->getUserDashboardData(5, $this->getUser());
+        $result = $userRepo->findUserDashboardData(5, $this->getUser());
         if (!$result) {
             return new JsonResponse('{"message": "No users found"}', Response::HTTP_NOT_FOUND, [], true);
         }

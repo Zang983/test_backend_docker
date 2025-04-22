@@ -17,7 +17,17 @@ class BudgetRepository extends ServiceEntityRepository
         parent::__construct($registry, Budget::class);
     }
 
-    public function findBudgetWithTransactionsAndParties(User $user){
+    public function findByUserWithoutTransactions(User $user): array
+    {
+        return $this->createQueryBuilder('b')
+            ->andWhere('b.ownerUser = :userId')
+            ->setParameter('userId', $user->getId())
+            ->getQuery()
+            ->getArrayResult();
+    }
+
+    public function findByUserWithTransactionsAndParties(User $user)
+    {
         $userId = $user->getId();
         return $this->createQueryBuilder('b')
             ->leftJoin('b.transactions', 't')
@@ -25,15 +35,6 @@ class BudgetRepository extends ServiceEntityRepository
             ->addSelect('t', 'p')
             ->andWhere('b.ownerUser = :userId')
             ->setParameter('userId', $userId)
-            ->getQuery()
-            ->getArrayResult();
-    }
-
-    public function getBudgetWithoutTransactions(User $user): array
-    {
-        return $this->createQueryBuilder('b')
-            ->andWhere('b.ownerUser = :userId')
-            ->setParameter('userId', $user->getId())
             ->getQuery()
             ->getArrayResult();
     }

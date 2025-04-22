@@ -29,7 +29,7 @@ final class BudgetController extends AbstractController
                 'message' => 'You are not logged in',
             ]);
         }
-        $result = $repo->findBudgetWithTransactionsAndParties($user);
+        $result = $repo->findByUserWithTransactionsAndParties($user);
         if (!$result) {
             return $this->json([
                 'message' => 'No budgets found for this user',

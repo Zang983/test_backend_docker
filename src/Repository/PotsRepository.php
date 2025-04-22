@@ -17,7 +17,7 @@ class PotsRepository extends ServiceEntityRepository
         parent::__construct($registry, Pots::class);
     }
 
-    public function getPotsByUserWithTotal(User $user, ?int $limit = 4): array
+    public function findPotsByUserWithTotal(User $user, ?int $limit = 4): array
     {
 
         return [
