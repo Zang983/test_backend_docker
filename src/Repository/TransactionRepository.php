@@ -41,20 +41,22 @@ class TransactionRepository extends ServiceEntityRepository
             }
         }
 
-        // Gestion des tris
-        switch ($params['field']) {
-            case 'date':
-                $queryBuilder->orderBy('t.transectedAt', $params['order']);
-                break;
-            case 'amount':
-                $queryBuilder->orderBy('t.amount', $params['order']);
-                break;
-            case 'alphabetical':
-                $queryBuilder->orderBy('p.name', $params['order']);
-                break;
-            default:
-                $queryBuilder->orderBy('t.transectedAt', 'ASC');
+        if(isset($params['field'])){
+            switch ($params['field']) {
+                case 'date':
+                    $queryBuilder->orderBy('t.transectedAt', $params['order']);
+                    break;
+                case 'amount':
+                    $queryBuilder->orderBy('t.amount', $params['order']);
+                    break;
+                case 'alphabetical':
+                    $queryBuilder->orderBy('p.name', $params['order']);
+                    break;
+                default:
+                    $queryBuilder->orderBy('t.transectedAt', 'ASC');
+            }
         }
+
 
         // Filtre par catégorie
         if (isset($params['category'])) {
