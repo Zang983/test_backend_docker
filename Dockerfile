@@ -39,9 +39,9 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www/html
 
 # Create JWT keys
-RUN mkdir -p config/jwt && \
-    openssl genrsa -out config/jwt/private.pem 2048 && \
-    openssl rsa -pubout -in config/jwt/private.pem -out config/jwt/public.pem
+#RUN mkdir -p config/jwt && \
+#    openssl genrsa -out config/jwt/private.pem 2048 && \
+#    openssl rsa -pubout -in config/jwt/private.pem -out config/jwt/public.pem
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html

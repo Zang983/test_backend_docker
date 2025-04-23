@@ -1,5 +1,4 @@
 services:
-  # Service PHP et Apache
   app:
     build:
       context: .
@@ -8,30 +7,34 @@ services:
     restart: unless-stopped
     volumes:
       - ./:/var/www/html
+      - ./config/jwt:/var/www/html/config/jwt
     ports:
       - "8080:80"
     depends_on:
-      - database
+      postgresql:
+        condition: service_healthy
     networks:
       - symfony_network
     environment:
-      - DATABASE_URL=postgresql://root:root@database:5432/duduProject
+      - DATABASE_URL=postgresql://root:root@postgresql:5432/duduProject?serverVersion=16&charset=utf8
     command: >
-      bash -c "composer install &&
-               service apache2 start &&
-               php bin/console doctrine:database:drop --if-exists --force &&
-               php bin/console doctrine:database:create &&
-               php bin/console doctrine:migrations:migrate &&
-               php bin/console doctrine:fixtures:load --no-interaction &&
-               symfony serve --no-tls"
+      bash -c "
+        mkdir -p config/jwt &&
+        if [ -f config/jwt/private.pem ]; then chmod 600 config/jwt/private.pem; fi &&
+        if [ -f config/jwt/public.pem ]; then chmod 644 config/jwt/public.pem; fi &&
+        composer install &&
+        php bin/console cache:clear &&
+        a2enmod rewrite &&
+        a2enmod headers &&
+        service apache2 restart &&
+        symfony serve --no-tls --allow-all-ip"
 
-  # Service PostgreSQL
-  database:
-    image: postgres
+  postgresql:
+    image: postgres:16-alpine
     container_name: symfony_db_duduProject
     restart: unless-stopped
     environment:
-      POSTGRES_DB: "duduProject"
+      POSTGRES_DB: duduProject
       POSTGRES_USER: root
       POSTGRES_PASSWORD: root
     volumes:
@@ -40,15 +43,19 @@ services:
       - "5432:5432"
     networks:
       - symfony_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U root"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
-  # Service Adminer
   adminer:
     image: adminer
     restart: always
     ports:
       - "8081:8080"
     depends_on:
-      - database
+      - postgresql
     networks:
       - symfony_network
 
@@ -58,3 +65,4 @@ networks:
 
 volumes:
   db_data:
+    driver: local
