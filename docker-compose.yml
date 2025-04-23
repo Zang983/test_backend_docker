@@ -9,7 +9,7 @@ services:
       - ./:/var/www/html
       - ./config/jwt:/var/www/html/config/jwt
     ports:
-      - "8080:80"
+      - "8080:8000"  # Port modifié pour correspondre au serveur Symfony
     depends_on:
       postgresql:
         condition: service_healthy
@@ -24,10 +24,7 @@ services:
         if [ -f config/jwt/public.pem ]; then chmod 644 config/jwt/public.pem; fi &&
         composer install &&
         php bin/console cache:clear &&
-        a2enmod rewrite &&
-        a2enmod headers &&
-        service apache2 restart &&
-        symfony serve --no-tls --allow-all-ip"
+        symfony serve --port=8000 --no-tls --allow-all-ip"
 
   postgresql:
     image: postgres:16-alpine

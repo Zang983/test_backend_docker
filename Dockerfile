@@ -26,11 +26,11 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg && \
 RUN curl -sS https://get.symfony.com/cli/installer | bash && \
     mv /root/.symfony*/bin/symfony /usr/local/bin/symfony
 
-# Enable Apache mod_rewrite
-RUN a2enmod rewrite
+## Enable Apache mod_rewrite
+#RUN a2enmod rewrite
 
-# Copy Apache configuration
-COPY apache-config.conf /etc/apache2/sites-available/000-default.conf
+## Copy Apache configuration
+#COPY apache-config.conf /etc/apache2/sites-available/000-default.conf
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
