@@ -8,8 +8,9 @@ services:
     volumes:
       - ./:/var/www/html
       - ./config/jwt:/var/www/html/config/jwt
+      - /var/www/html/var/cache
     ports:
-      - "8080:8000"  # Port modifié pour correspondre au serveur Symfony
+      - "8000:8000"  # Port modifié pour correspondre au serveur Symfony
     depends_on:
       postgresql:
         condition: service_healthy
@@ -19,11 +20,11 @@ services:
       - DATABASE_URL=postgresql://root:root@postgresql:5432/duduProject?serverVersion=16&charset=utf8
     command: >
       bash -c "
-        mkdir -p config/jwt &&
-        if [ -f config/jwt/private.pem ]; then chmod 600 config/jwt/private.pem; fi &&
-        if [ -f config/jwt/public.pem ]; then chmod 644 config/jwt/public.pem; fi &&
+        set -x &&
         composer install &&
+        rm -rf var/cache/* &&
         php bin/console cache:clear &&
+        php bin/console cache:warmup &&
         symfony serve --port=8000 --no-tls --allow-all-ip"
 
   postgresql:
@@ -41,7 +42,7 @@ services:
     networks:
       - symfony_network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U root"]
+      test: ["CMD-SHELL", "pg_isready -U root -d duduProject"]
       interval: 5s
       timeout: 5s
       retries: 5
