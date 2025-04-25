@@ -20,7 +20,8 @@ services:
       - DATABASE_URL=postgresql://root:root@postgresql:5432/duduProject?serverVersion=16&charset=utf8
     command: >
       bash -c "
-        set -x &&
+        pkill -f 'symfony serve' || true &&
+        symfony server:stop
         composer install &&
         rm -rf var/cache/* &&
         php bin/console cache:clear &&
