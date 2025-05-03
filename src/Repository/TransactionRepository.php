@@ -143,5 +143,84 @@ class TransactionRepository extends ServiceEntityRepository
         return $result;
     }
 
+    public function findAndCalculateMonthIncome(User $user){
+        $transactions = $this->createQueryBuilder('t')
+            ->andWhere('t.userOwner = :userId')
+            ->setParameter('userId', $user->getId())
+            ->andWhere('t.transectedAt >= :startDate')
+            ->setParameter('startDate', new \DateTime('first day of this month'))
+            ->andWhere('t.transectedAt <= :endDate')
+            ->setParameter('endDate', new \DateTime('last day of this month'))
+            ->getQuery()
+            ->getArrayResult();
+
+        $totalIncome = 0;
+        foreach ($transactions as $transaction) {
+            if ($transaction['amount'] > 0) {
+                $totalIncome += $transaction['amount'];
+            }
+        }
+
+        return round($totalIncome,2);
+    }
+    public function findAndCalculateLast30DaysIncome(User $user){
+        $transactions = $this->createQueryBuilder('t')
+            ->andWhere('t.userOwner = :userId')
+            ->setParameter('userId', $user->getId())
+            ->andWhere('t.transectedAt >= :startDate')
+            ->setParameter('startDate', new \DateTime('first day of this month'))
+            ->andWhere('t.transectedAt <= :endDate')
+            ->setParameter('endDate', new \DateTime('last day of this month'))
+            ->getQuery()
+            ->getArrayResult();
+
+        $totalExpenses = 0;
+        foreach ($transactions as $transaction) {
+            if ($transaction['amount'] > 0) {
+                $totalExpenses += abs($transaction['amount']);
+            }
+        }
+
+        return round($totalExpenses,2);
+    }
+    public function findAndCalculateLast30DaysExpenses(User $user){
+        $transactions = $this->createQueryBuilder('t')
+            ->andWhere('t.userOwner = :userId')
+            ->setParameter('userId', $user->getId())
+            ->andWhere('t.transectedAt >= :startDate')
+            ->setParameter('startDate', new \DateTime('-30 days'))
+            ->andWhere('t.transectedAt <= :endDate')
+            ->setParameter('endDate', new \DateTime())
+            ->getQuery()
+            ->getArrayResult();
+
+        $totalExpenses = 0;
+        foreach ($transactions as $transaction) {
+            if ($transaction['amount'] < 0) {
+                $totalExpenses += abs($transaction['amount']);
+            }
+        }
+        return round($totalExpenses,2);
+    }
+    public function findAndCalculateMonthExpenses(User $user){
+        $transactions = $this->createQueryBuilder('t')
+            ->andWhere('t.userOwner = :userId')
+            ->setParameter('userId', $user->getId())
+            ->andWhere('t.transectedAt >= :startDate')
+            ->setParameter('startDate', new \DateTime('first day of this month'))
+            ->andWhere('t.transectedAt <= :endDate')
+            ->setParameter('endDate', new \DateTime('last day of this month'))
+            ->getQuery()
+            ->getArrayResult();
+
+        $totalExpenses = 0;
+        foreach ($transactions as $transaction) {
+            if ($transaction['amount'] < 0) {
+                $totalExpenses += abs($transaction['amount']);
+            }
+        }
+        return round($totalExpenses,2);
+    }
+
 
 }

@@ -2,6 +2,7 @@
 
 namespace App\DataFixtures;
 
+use Faker\Factory;
 use Faker\Generator;
 use App\Entity\User;
 use App\Factory\BudgetFactory;
@@ -19,7 +20,8 @@ class AppFixtures extends Fixture
 
     public function __construct(private UserPasswordHasherInterface $hasher)
     {
-        $this->faker = new Generator();
+        $this->faker = Factory::create('fr_FR');
+
     }
 
     public function load(ObjectManager $manager): void
@@ -92,6 +94,41 @@ class AppFixtures extends Fixture
                 'budget' => $randomBudget,
             ];
         });
+        $transactionsOfMonth = TransactionFactory::createMany(200, function () use ($users, $parties, $budgets) {
+            $randomBudget = null;
+            $amount = $this->faker->randomFloat(2, -10000, 10000);
+            if ($amount < 0) {
+                if (random_int(0, 1)) { // 50% de chance
+                    $randomBudget = $budgets[array_rand($budgets)];
+                }
+            }
+
+            return [
+                'amount' => $amount,
+                'transectedAt' => \DateTimeImmutable::createFromMutable($this->faker->dateTimeBetween('-1 month', 'now')),
+                'parties' => $parties[array_rand($parties)],
+                'userOwner' => $users[array_rand($users)],
+                'budget' => $randomBudget,
+            ];
+        });
+        $firstUserTransactionsOfMonth = TransactionFactory::createMany(200, function () use ($firstUser, $parties, $budgets) {
+            $randomBudget = null;
+            $amount = $this->faker->randomFloat(2, -10000, 10000);
+            if ($amount < 0) {
+                if (random_int(0, 1)) { // 50% de chance
+                    $randomBudget = $budgets[array_rand($budgets)];
+                }
+            }
+            return [
+                'amount' => $amount,
+                'transectedAt' => \DateTimeImmutable::createFromMutable($this->faker->dateTimeBetween('-1 month', 'now')),
+                'parties' => $parties[array_rand($parties)],
+                'userOwner' => $firstUser,
+                'budget' => $randomBudget,
+            ];
+        });
+
+
         $manager->flush();
     }
 }
