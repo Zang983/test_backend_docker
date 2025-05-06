@@ -4,33 +4,50 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
-    categories :
-        - Entertainment
-        - Bills
-        - Groceries
-        - Dining Out
-        - Transportation
-        - Personal Care
-        - Education
-        - Lifestyle
-        - Shopping
-        - General
+  categories:
+    - Entertainment
+    - Bills
+    - Groceries
+    - Dining Out
+    - Transportation
+    - Personal Care
+    - Education
+    - Lifestyle
+    - Shopping
+    - General
+  colors:
+    - bg-[#AF81BA]
+    - bg-[#597C7C]
+    - bg-[#93674F]
+    - bg-[#934F6F]
+    - bg-[#3F82B2]
+    - bg-[#97A0AC]
+    - bg-[#7F9161]
+    - bg-[#CAB361]
+    - bg-[#BE6C49]
+    - bg-[#277C78]
+    - bg-[#F2CDAC]
+    - bg-[#82C9D7]
+    - bg-[#626070]
+    - bg-[#C94736]
+    - bg-[#826CB0]
 services:
-    # default configuration for services in *this* file
-    _defaults:
-        autowire: true      # Automatically injects dependencies in your services.
-        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
-        bind:
-            $categories: '%categories%'
+  # default configuration for services in *this* file
+  _defaults:
+    autowire: true      # Automatically injects dependencies in your services.
+    autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+    bind:
+      $categories: '%categories%'
+      $colors: '%colors%'
 
-    # makes classes in src/ available to be used as services
-    # this creates a service per class whose id is the fully-qualified class name
-    App\:
-        resource: '../src/'
-        exclude:
-            - '../src/DependencyInjection/'
-            - '../src/Entity/'
-            - '../src/Kernel.php'
+  # makes classes in src/ available to be used as services
+  # this creates a service per class whose id is the fully-qualified class name
+  App\:
+    resource: '../src/'
+    exclude:
+      - '../src/DependencyInjection/'
+      - '../src/Entity/'
+      - '../src/Kernel.php'
 
-    # add more service definitions when explicit configuration is needed
-    # please note that last definitions always *replace* previous ones
+  # add more service definitions when explicit configuration is needed
+  # please note that last definitions always *replace* previous ones

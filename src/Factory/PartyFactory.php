@@ -15,7 +15,7 @@ final class PartyFactory extends PersistentProxyObjectFactory
      *
      * @todo inject services if required
      */
-    public function __construct()
+    public function __construct(array $colors)
     {
     }
 
@@ -41,8 +41,7 @@ final class PartyFactory extends PersistentProxyObjectFactory
      */
     protected function initialize(): static
     {
-        return $this
-            // ->afterInstantiate(function(Party $party): void {})
-        ;
+        return $this// ->afterInstantiate(function(Party $party): void {})
+            ;
     }
 }

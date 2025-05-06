@@ -10,14 +10,17 @@ use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
  */
 final class BudgetFactory extends PersistentProxyObjectFactory
 {
-    private $categories = [];
+    private array $categories;
+    private array $colors;
+
     /**
      * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#factories-as-services
      *
      * @todo inject services if required
      */
-    public function __construct(array $categories)
+    public function __construct(array $categories, array $colors)
     {
+        $this->colors = $colors;
         $this->categories = $categories;
     }
 
@@ -35,7 +38,7 @@ final class BudgetFactory extends PersistentProxyObjectFactory
     {
         return [
             'category' => self::faker()->randomElement($this->categories),
-            'color' => self::faker()->colorName(),
+            'color' => self::faker()->randomElement($this->colors),
             'maxSpend' => self::faker()->randomFloat(2, 0, 10000),
             'ownerUser' => null, // TODO add App\Entity\user type manually
         ];

@@ -15,8 +15,10 @@ final class PotsFactory extends PersistentProxyObjectFactory
      *
      * @todo inject services if required
      */
-    public function __construct()
+    private array $colors;
+    public function __construct(array $colors)
     {
+        $this->colors = $colors;
     }
 
     public static function class(): string
@@ -33,7 +35,7 @@ final class PotsFactory extends PersistentProxyObjectFactory
     {
         return [
             'balance' => self::faker()->randomFloat(2, 0, 10000),
-            'color' => self::faker()->colorName(),
+            'color' => self::faker()->randomElement($this->colors),
             'name' => self::faker()->userName(),
             'ownerUser' => UserFactory::new(),
             'target' => self::faker()->randomFloat(2,0,100000),
