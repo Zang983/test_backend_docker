@@ -19,6 +19,7 @@ class BudgetRepository extends ServiceEntityRepository
 
     public function findByUserWithoutTransactions(User $user): array
     {
+        // On récupère les budgets avec les transactions associées des 30 derniers jours
         return $this->createQueryBuilder('b')
             ->andWhere('b.ownerUser = :userId')
             ->setParameter('userId', $user->getId())
@@ -26,15 +27,21 @@ class BudgetRepository extends ServiceEntityRepository
             ->getArrayResult();
     }
 
-    public function findByUserWithTransactionsAndParties(User $user)
+    public function findByUserWithTransactionsAndParties(User $user): array
     {
         $userId = $user->getId();
+        $firstDayOfMonth = new \DateTime('first day of this month midnight');
+        $lastDayOfMonth = new \DateTime('last day of this month 23:59:59');
+
         return $this->createQueryBuilder('b')
             ->leftJoin('b.transactions', 't')
             ->leftJoin('t.parties', 'p')
             ->addSelect('t', 'p')
             ->andWhere('b.ownerUser = :userId')
+            ->andWhere('t.transectedAt BETWEEN :start AND :end')
             ->setParameter('userId', $userId)
+            ->setParameter('start', $firstDayOfMonth)
+            ->setParameter('end', $lastDayOfMonth)
             ->getQuery()
             ->getArrayResult();
     }

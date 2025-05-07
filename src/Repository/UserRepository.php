@@ -51,7 +51,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
             }
             return [
                 'transaction' => $this->transactionRepository->findLastTransactionsByUser($user, $numberOfTransactions),
-                'budget' => $this->budgetRepository->findByUserWithoutTransactions($user),
+                'budget' => $this->budgetRepository->findByUserWithTransactionsAndParties($user),
                 'pots' => $this->potsRepository->findPotsByUserWithTotal($user),
                 'recurring'=>$this->transactionRepository->findRecurringDataByUser($user),
                 'userBalance'=>$user->getBalance(),

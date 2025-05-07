@@ -70,6 +70,8 @@ class TransactionRepository extends ServiceEntityRepository
     public function findLastTransactionsByUser(User $user, int $limit = 5): array
     {
         return $this->createQueryBuilder('t')
+            ->leftJoin('t.parties', 'p')
+            ->addSelect('p')
             ->andWhere('t.userOwner = :userId')
             ->setParameter('userId', $user->getId())
             ->orderBy('t.transectedAt', 'DESC')
